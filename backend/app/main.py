@@ -6,6 +6,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from app.api.assets.router import register_assets_api
 from app.api.health.router import router as health_router
 from app.core.config import Settings
 from app.core.logging import configure_logging
@@ -33,6 +34,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application = FastAPI(title=config.app_name, version="0.1.0", lifespan=lifespan)
     application.state.settings = config
     application.include_router(health_router)
+    register_assets_api(application)
     return application
 
 

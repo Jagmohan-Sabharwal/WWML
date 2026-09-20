@@ -4,7 +4,16 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID, uuid4
 
-from sqlalchemy import BigInteger, CheckConstraint, DateTime, String, Text, func, text
+from sqlalchemy import (
+    BigInteger,
+    CheckConstraint,
+    DateTime,
+    Index,
+    String,
+    Text,
+    func,
+    text,
+)
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -16,6 +25,9 @@ class Asset(Base):
 
     __tablename__ = "assets"
     __table_args__ = (
+        Index("ix_assets_created_id", "created_at", "id"),
+        Index("ix_assets_media_created_id", "media_type", "created_at", "id"),
+        Index("ix_assets_mime_created_id", "mime_type", "created_at", "id"),
         CheckConstraint("size_bytes >= 0", name="size_nonnegative"),
         CheckConstraint("sha256 ~ '^[0-9a-f]{64}$'", name="sha256_format"),
         CheckConstraint("length(btrim(name)) > 0", name="name_nonempty"),
@@ -30,7 +42,7 @@ class Asset(Base):
     name: Mapped[str] = mapped_column(String(255))
     description: Mapped[str | None] = mapped_column(Text)
     storage_uri: Mapped[str] = mapped_column(Text)
-    media_type: Mapped[str] = mapped_column(String(16), index=True)
+    media_type: Mapped[str] = mapped_column(String(16))
     mime_type: Mapped[str] = mapped_column(String(127))
     size_bytes: Mapped[int] = mapped_column(BigInteger)
     sha256: Mapped[str] = mapped_column(String(64), unique=True)
