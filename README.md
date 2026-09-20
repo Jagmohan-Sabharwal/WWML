@@ -126,3 +126,9 @@ See [backend/README.md](backend/README.md) for the Python 3.12 application layou
 After starting the stack, run `docker compose exec -T backend alembic upgrade head`.
 See [backend database documentation](backend/README.md#postgresql-and-migrations)
 for configuration, the Assets schema, migrations and PostgreSQL integration tests.
+
+## Assets API
+
+Use `/assets` to register and discover reusable footage. CRUD, search, filters
+and pagination are documented in [Assets API](backend/docs/assets-api.md) and
+Swagger at http://localhost:8000/docs. Apply migrations before using these routes.

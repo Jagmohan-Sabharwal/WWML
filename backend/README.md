@@ -158,7 +158,7 @@ Hash the actual file bytes before registration and look up sha256 before creatin
 an asset. The unique constraint also prevents duplicates during concurrent writes;
 handle IntegrityError with a rollback and reuse the existing record. This is exact
 file deduplication, not semantic equivalence detection. Multiple source locations,
-perceptual similarity and asset registration APIs can be added in later slices.
+perceptual similarity can be added in later slices. Asset registration and discovery APIs are documented below.
 The ORM updates updated_at on changes; raw SQL writers must set it explicitly.
 Replace asset_metadata with a new dictionary when editing it so SQLAlchemy tracks
 the change. Media files are referenced, not stored as database blobs.
@@ -180,3 +180,8 @@ The test fixture refuses non-test names or databases containing tables. It remov
 its tables after each test. Never point this suite at a shared or production
 database. Without RUN_DB_TESTS=1 these tests are skipped; unit tests and offline
 migration SQL generation still run without PostgreSQL.
+
+## Assets CRUD and discovery
+
+See [Assets API](docs/assets-api.md) for CRUD, search, pagination, filtering,
+Swagger examples, conflict handling and the discovery-index migration.
