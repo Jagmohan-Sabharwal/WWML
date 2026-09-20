@@ -120,3 +120,9 @@ volumes on completion.
 ## Backend development
 
 See [backend/README.md](backend/README.md) for the Python 3.12 application layout, configuration, logging and tests. GET /health returns status healthy; dependency readiness remains at /health/ready.
+
+## Initialize the Assets database
+
+After starting the stack, run `docker compose exec -T backend alembic upgrade head`.
+See [backend database documentation](backend/README.md#postgresql-and-migrations)
+for configuration, the Assets schema, migrations and PostgreSQL integration tests.

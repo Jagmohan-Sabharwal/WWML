@@ -17,6 +17,8 @@ jobs:
         run: docker compose config --quiet
       - name: Build and start development services
         run: docker compose up --build --wait --wait-timeout 180
+      - name: Apply initial migration in development image
+        run: docker compose exec -T backend alembic upgrade head
       - name: Verify requests and dependency connectivity
         run: |
           curl --fail http://localhost:8000/health | python3 -c 'import json,sys; assert json.load(sys.stdin) == {"status":"healthy"}'
@@ -27,6 +29,8 @@ jobs:
         run: docker compose down
       - name: Build and start production images without source mounts
         run: docker compose -f docker-compose.yml -f docker-compose.production.yml up --build --wait --wait-timeout 180
+      - name: Check migrations in production image
+        run: docker compose exec -T backend alembic upgrade head
       - name: Verify production requests
         run: |
           curl --fail http://localhost:3000/ | grep -q WWML

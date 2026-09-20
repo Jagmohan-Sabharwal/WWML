@@ -9,6 +9,7 @@ from fastapi import FastAPI
 from app.api.health.router import router as health_router
 from app.core.config import Settings
 from app.core.logging import configure_logging
+from app.db.session import create_database_engine, create_session_factory
 
 logger = logging.getLogger("wwml")
 
@@ -20,9 +21,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @asynccontextmanager
     async def lifespan(application: FastAPI) -> AsyncIterator[None]:
         configure_logging(config.log_level)
+        engine = create_database_engine(config)
+        application.state.session_factory = create_session_factory(engine)
         logger.info("WWML API started")
-        yield
-        logger.info("WWML API stopped")
+        try:
+            yield
+        finally:
+            engine.dispose()
+            logger.info("WWML API stopped")
 
     application = FastAPI(title=config.app_name, version="0.1.0", lifespan=lifespan)
     application.state.settings = config
