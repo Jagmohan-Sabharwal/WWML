@@ -115,3 +115,8 @@ The Docker platform GitHub Actions workflow builds and starts all four services,
 checks the frontend, SQL/Redis readiness and frontend proxy, then repeats against
 production images without source mounts. It prints container logs and cleans up
 volumes on completion.
+
+
+## Backend development
+
+See [backend/README.md](backend/README.md) for the Python 3.12 application layout, configuration, logging and tests. GET /health returns status healthy; dependency readiness remains at /health/ready.
