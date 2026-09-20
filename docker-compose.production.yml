@@ -1,0 +1,13 @@
+# Smoke-test deployable images locally; supply real secrets/TLS for a hosted deployment.
+services:
+  backend:
+    build:
+      target: production
+    command: !reset null
+    volumes: !reset []
+  frontend:
+    build:
+      target: production
+    environment:
+      NODE_ENV: production
+    volumes: !reset []
