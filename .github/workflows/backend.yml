@@ -20,7 +20,7 @@ jobs:
           cache: pip
           cache-dependency-path: backend/requirements*.txt
       - run: python -m pip install -r requirements-dev.txt
-      - run: python -m compileall -q app
+      - run: python -m compileall -q app alembic
       - run: python -m ruff check .
       - run: python -m ruff format --check .
       - run: python -m mypy
