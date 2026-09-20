@@ -185,3 +185,8 @@ migration SQL generation still run without PostgreSQL.
 
 See [Assets API](docs/assets-api.md) for CRUD, search, pagination, filtering,
 Swagger examples, conflict handling and the discovery-index migration.
+
+## Google Drive folder discovery
+
+See [Google Drive reader](docs/google-drive.md) for configured-folder reads,
+recursive metadata discovery, read-only ADC setup and tests.

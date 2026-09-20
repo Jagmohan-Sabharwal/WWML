@@ -1,0 +1,11 @@
+# Optional file-based Application Default Credentials for local development.
+# Set GOOGLE_DRIVE_CREDENTIALS_FILE to an absolute host path outside the repository.
+services:
+  backend:
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/google_drive_credentials
+    secrets:
+      - google_drive_credentials
+secrets:
+  google_drive_credentials:
+    file: ${GOOGLE_DRIVE_CREDENTIALS_FILE:?Set the host credentials file path}

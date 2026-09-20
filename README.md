@@ -132,3 +132,9 @@ for configuration, the Assets schema, migrations and PostgreSQL integration test
 Use `/assets` to register and discover reusable footage. CRUD, search, filters
 and pagination are documented in [Assets API](backend/docs/assets-api.md) and
 Swagger at http://localhost:8000/docs. Apply migrations before using these routes.
+
+## Google Drive sources
+
+The optional [Google Drive reader](backend/docs/google-drive.md) returns files and
+metadata from a configured folder recursively. Configure the folder and ADC
+credentials before calling `/integrations/google-drive/files`.
