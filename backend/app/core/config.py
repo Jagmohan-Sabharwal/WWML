@@ -22,6 +22,14 @@ class Settings(BaseSettings):
     postgres_user: str = "wwml"
     postgres_password: SecretStr = SecretStr("")
     redis_url: SecretStr = SecretStr("redis://redis:6379/0")
+    google_drive_folder_id: str = Field(
+        default="", pattern=r"^[A-Za-z0-9_-]*$", max_length=256
+    )
+    google_drive_max_files: int = Field(default=10000, ge=1, le=100000)
+    google_drive_max_folders: int = Field(default=1000, ge=1, le=10000)
+    google_drive_max_requests: int = Field(default=1000, ge=1, le=10000)
+    google_drive_request_timeout_seconds: int = Field(default=10, ge=1, le=60)
+    google_drive_scan_timeout_seconds: int = Field(default=60, ge=1, le=300)
 
 
 def get_settings(request: Request) -> Settings:

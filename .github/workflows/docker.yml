@@ -15,12 +15,17 @@ jobs:
         run: cp .env.example .env
       - name: Validate development configuration
         run: docker compose config --quiet
+      - name: Validate optional Drive credentials override
+        run: |
+          printf '{}' > /tmp/wwml-drive-credentials.json
+          GOOGLE_DRIVE_CREDENTIALS_FILE=/tmp/wwml-drive-credentials.json docker compose -f docker-compose.yml -f docker-compose.drive.yml config --quiet
       - name: Build and start development services
         run: docker compose up --build --wait --wait-timeout 180
       - name: Apply migrations in development image
         run: docker compose exec -T backend alembic upgrade head
       - name: Verify requests and dependency connectivity
         run: |
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/integrations/google-drive/files)" = "503"
           curl --fail http://localhost:8000/health | python3 -c 'import json,sys; assert json.load(sys.stdin) == {"status":"healthy"}'
           curl --fail http://localhost:8000/health/ready | python3 -c 'import json,sys; assert json.load(sys.stdin) == {"status":"ok","checks":{"postgres":True,"redis":True}}'
           curl --fail http://localhost:3000/ | grep -q WWML
@@ -35,6 +40,7 @@ jobs:
         run: docker compose exec -T backend alembic upgrade head
       - name: Verify production requests
         run: |
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/integrations/google-drive/files)" = "503"
           curl --fail http://localhost:3000/ | grep -q WWML
           curl --fail http://localhost:3000/api/health | python3 -c 'import json,sys; assert json.load(sys.stdin)["checks"] == {"postgres":True,"redis":True}'
       - name: Verify production Assets API

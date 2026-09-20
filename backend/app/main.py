@@ -7,6 +7,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.api.assets.router import register_assets_api
+from app.api.drive.router import register_drive_api
 from app.api.health.router import router as health_router
 from app.core.config import Settings
 from app.core.logging import configure_logging
@@ -35,6 +36,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.state.settings = config
     application.include_router(health_router)
     register_assets_api(application)
+    register_drive_api(application)
     return application
 
 
