@@ -32,7 +32,8 @@ The first build downloads dependencies and can take several minutes.
 - Frontend-to-backend connectivity: http://localhost:3000/api/health
 
 The repository includes runnable apps, an Assets API and optional Google Drive
-ingestion. Command Center and application authentication are not implemented yet.
+ingestion. The frontend includes Dashboard, Assets, Productions and Settings pages.
+Production planning and application authentication are not implemented yet.
 
 ## Services and configuration
 
@@ -231,3 +232,9 @@ Tests cover naming, streaming failures, integrity checks, retry limits, restart
 recovery, duplicate reuse, migration round trips and progress API pagination.
 The PostgreSQL and Docker workflows exercise the real database and both images;
 live Drive access requires your configured credentials.
+
+## Frontend workspace
+
+Open http://localhost:3000 for Dashboard, Assets, Productions and Settings.
+See [frontend documentation](frontend/README.md) for local setup, Tailwind styling,
+TypeScript conventions, runtime configuration and browser tests.

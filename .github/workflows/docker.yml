@@ -32,13 +32,18 @@ jobs:
           test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/integrations/google-drive/files)" = "503"
           curl --fail http://localhost:8000/health | python3 -c 'import json,sys; assert json.load(sys.stdin) == {"status":"healthy"}'
           curl --fail http://localhost:8000/health/ready | python3 -c 'import json,sys; assert json.load(sys.stdin) == {"status":"ok","checks":{"postgres":True,"redis":True}}'
-          curl --fail http://localhost:3000/ | grep -q WWML
+          curl --fail --location http://localhost:3000/ | grep -q WWML
           curl --fail http://localhost:3000/api/health | python3 -c 'import json,sys; assert json.load(sys.stdin)["status"] == "ok"'
       - name: Verify importer runtime and writable storage
         run: |
           docker compose exec -T backend python -m app.workers.drive_import --help
           docker compose exec -T backend python -c "from pathlib import Path; p=Path('/data/assets/smoke'); p.write_bytes(b'ok'); p.unlink()"
           curl --fail http://localhost:8000/integrations/google-drive/imports | python3 -c 'import json,sys; assert json.load(sys.stdin)["total"] == 0'
+      - name: Verify frontend workspace routes
+        run: |
+          for route in dashboard assets productions settings; do
+            curl --fail "http://localhost:3000/$route" | grep -q WWML
+          done
       - name: Verify development Assets API
         run: python3 backend/scripts/smoke_assets.py
       - name: Stop development services
@@ -50,7 +55,7 @@ jobs:
       - name: Verify production requests
         run: |
           test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/integrations/google-drive/files)" = "503"
-          curl --fail http://localhost:3000/ | grep -q WWML
+          curl --fail --location http://localhost:3000/ | grep -q WWML
           curl --fail http://localhost:3000/api/health | python3 -c 'import json,sys; assert json.load(sys.stdin)["checks"] == {"postgres":True,"redis":True}'
       - name: Verify production Assets API
         run: python3 backend/scripts/smoke_assets.py
