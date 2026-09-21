@@ -31,8 +31,8 @@ The first build downloads dependencies and can take several minutes.
 - Full readiness: http://localhost:8000/health/ready
 - Frontend-to-backend connectivity: http://localhost:3000/api/health
 
-The repository includes minimal runnable apps; Smart Sync, Asset Registry,
-Command Center, and application authentication are not implemented yet.
+The repository includes runnable apps, an Assets API and optional Google Drive
+ingestion. Command Center and application authentication are not implemented yet.
 
 ## Services and configuration
 
@@ -138,3 +138,96 @@ Swagger at http://localhost:8000/docs. Apply migrations before using these route
 The optional [Google Drive reader](backend/docs/google-drive.md) returns files and
 metadata from a configured folder recursively. Configure the folder and ADC
 credentials before calling `/integrations/google-drive/files`.
+
+## Google Drive: watch → import → rename → register → done
+
+The opt-in worker recursively polls the configured Drive folder. It imports ordinary
+uploaded files (video, audio, images, PDFs, etc.) into the persistent `asset_data`
+volume. Only imported copies are renamed. Native Google Workspace files and
+shortcuts appear as `skipped`; export and shortcut traversal are not implemented.
+
+Set `GOOGLE_DRIVE_FOLDER_ID` and `GOOGLE_DRIVE_CREDENTIALS_FILE` in your local
+environment or .env. Enable the Drive API and grant the credential identity read
+access to the source folder. The importer requests
+`https://www.googleapis.com/auth/drive.readonly`; credentials previously authorized
+only for metadata must be reauthorized for downloads. The metadata endpoint keeps
+its narrower metadata scope. Credentials are mounted as a secret, never stored in
+Assets, progress rows, images, or logs. No Drive write permissions are requested.
+
+Start the platform and apply migration 0003 before starting the worker:
+
+```sh
+docker compose up --build -d
+docker compose exec backend alembic upgrade head
+docker compose -f docker-compose.yml -f docker-compose.import.yml up --build -d
+```
+
+For production images, include overrides in this order so the shared asset mount
+is added after the production override removes development source mounts:
+
+```sh
+docker compose -f docker-compose.yml -f docker-compose.production.yml up --build -d
+docker compose exec backend alembic upgrade head
+docker compose -f docker-compose.yml -f docker-compose.production.yml -f docker-compose.import.yml up --build -d
+```
+
+Use `docker compose -f docker-compose.yml -f docker-compose.import.yml logs -f importer`
+for worker logs. Add `-f docker-compose.drive.yml` if the backend metadata reader
+also needs file-based credentials. The backend sees imported storage read-only.
+
+Run one scan instead of a continuous watcher:
+
+```sh
+docker compose -f docker-compose.yml -f docker-compose.import.yml run --rm importer python -m app.workers.drive_import --once
+```
+
+The watcher performs a full bounded scan, processes files serially, then waits
+`IMPORT_POLL_SECONDS` (default 60). It is polling, not a Drive push subscription.
+A PostgreSQL session advisory lock allows one importer per database. All replicas
+must share the same storage volume. No Redis queue or separate broker is needed.
+
+Progress is persisted in `drive_imports`, uniquely keyed by Drive file ID and
+provider version. `GET /integrations/google-drive/imports?status=done&page=1&page_size=20`
+returns paginated progress; `GET /integrations/google-drive/imports/{id}` returns
+one import. Swagger at `/docs` documents both endpoints. Progress includes status,
+attempt count, safe error code and registered Asset ID. These endpoints inherit
+the platform's current trusted-network deployment model; application user
+authentication has not yet been added.
+
+Downloads stream into private staging while calculating SHA-256. Size, provider
+checksum when available, download deadline and source version are checked before
+registration. Files changed during transfer fail that attempt; a subsequent scan
+discovers the new version. Default maximum size is 10 GiB and download deadline is
+30 minutes (plus at most an in-flight request timeout). Neither file bytes nor
+credentials are held in the database.
+
+The stored name is `asset-<sanitized-original-stem>-<12-character-SHA256><extension>`,
+inside a directory named by the full SHA-256. For example,
+`Interview take.mp4` becomes `asset-Interview_take-a1b2c3d4e5f6.mp4`.
+Path separators and unsafe characters are removed, names are bounded, and files
+are atomically published on the same storage volume. Assets retain the original
+Drive ID, name, version and relative path as source metadata.
+
+An existing Asset with the same SHA-256 is reused. When Drive supplies SHA-256,
+the download can be avoided entirely; otherwise bytes are compared after download.
+Asset registration and `done` commit together. Interrupted intermediate stages
+retry on a later scan while the source remains in the configured folder. Errors
+are retried up to `IMPORT_MAX_ATTEMPTS` (default 3), once per scan; increasing this
+setting permits further attempts after correcting permissions, capacity or other
+configuration. Exhausted jobs remain visibly failed. Inspect progress after
+`--once`: individual file failures are recorded even if the scan itself succeeds.
+
+Staging files left by a terminated worker are cleared by the next worker while it
+holds the exclusive lock. A crash after publication or a concurrent Asset
+registration can leave an unreferenced content file; files are intentionally not
+garbage-collected automatically. Deleting an Asset clears the progress reference
+but does not delete bytes or automatically reimport a completed source version.
+Back up PostgreSQL and `asset_data` together. Never use `down --volumes` on data
+you need to retain.
+
+Migration 0003 adds only ingestion tracking; downgrade removes tracking while
+preserving Assets and stored files. Stop the importer before downgrading.
+Tests cover naming, streaming failures, integrity checks, retry limits, restart
+recovery, duplicate reuse, migration round trips and progress API pagination.
+The PostgreSQL and Docker workflows exercise the real database and both images;
+live Drive access requires your configured credentials.

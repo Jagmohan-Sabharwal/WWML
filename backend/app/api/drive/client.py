@@ -17,7 +17,7 @@ DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.metadata.readonly"
 BASE_URL = "https://www.googleapis.com/drive/v3/files"
 FILE_FIELDS = (
     "id,name,mimeType,size,createdTime,modifiedTime,md5Checksum,sha256Checksum,"
-    "webViewLink,description,parents,driveId,trashed,"
+    "webViewLink,description,parents,driveId,trashed,version,capabilities(canDownload),"
     "shortcutDetails(targetId,targetMimeType)"
 )
 
@@ -127,10 +127,17 @@ class GoogleDriveClient:
 
 
 @contextmanager
-def authenticated_client(timeout: float) -> Iterator[GoogleDriveClient]:
+def authenticated_client(
+    timeout: float, *, download: bool = False
+) -> Iterator[GoogleDriveClient]:
     """Load credentials lazily and close the authorized transport after each scan."""
     try:
-        credentials, _ = google.auth.default(scopes=[DRIVE_SCOPE])
+        scope = (
+            "https://www.googleapis.com/auth/drive.readonly"
+            if download
+            else DRIVE_SCOPE
+        )
+        credentials, _ = google.auth.default(scopes=[scope])
         # google-auth does not annotate this constructor; isolate the boundary.
         session: Session = AuthorizedSession(  # type: ignore[no-untyped-call]
             credentials, refresh_timeout=timeout, max_refresh_attempts=1

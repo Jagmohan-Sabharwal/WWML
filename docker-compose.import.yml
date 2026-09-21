@@ -1,0 +1,42 @@
+# Opt-in worker: apply migrations before starting this service.
+services:
+  importer:
+    build:
+      context: ./backend
+      target: production
+    command: python -m app.workers.drive_import
+    restart: unless-stopped
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: ${POSTGRES_DB:-wwml}
+      POSTGRES_USER: ${POSTGRES_USER:-wwml}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+      GOOGLE_DRIVE_FOLDER_ID: ${GOOGLE_DRIVE_FOLDER_ID:?Set GOOGLE_DRIVE_FOLDER_ID}
+      GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/google_drive_credentials
+      GOOGLE_DRIVE_MAX_FILES: ${GOOGLE_DRIVE_MAX_FILES:-10000}
+      GOOGLE_DRIVE_MAX_FOLDERS: ${GOOGLE_DRIVE_MAX_FOLDERS:-1000}
+      GOOGLE_DRIVE_MAX_REQUESTS: ${GOOGLE_DRIVE_MAX_REQUESTS:-1000}
+      GOOGLE_DRIVE_REQUEST_TIMEOUT_SECONDS: ${GOOGLE_DRIVE_REQUEST_TIMEOUT_SECONDS:-10}
+      GOOGLE_DRIVE_SCAN_TIMEOUT_SECONDS: ${GOOGLE_DRIVE_SCAN_TIMEOUT_SECONDS:-60}
+      IMPORT_STORAGE_PATH: /data/assets
+      IMPORT_POLL_SECONDS: ${IMPORT_POLL_SECONDS:-60}
+      IMPORT_MAX_BYTES: ${IMPORT_MAX_BYTES:-10737418240}
+      IMPORT_MAX_ATTEMPTS: ${IMPORT_MAX_ATTEMPTS:-3}
+      IMPORT_DOWNLOAD_TIMEOUT_SECONDS: ${IMPORT_DOWNLOAD_TIMEOUT_SECONDS:-1800}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    volumes:
+      - asset_data:/data/assets
+    secrets:
+      - google_drive_credentials
+    depends_on:
+      postgres:
+        condition: service_healthy
+  backend:
+    volumes:
+      - asset_data:/data/assets:ro
+volumes:
+  asset_data:
+secrets:
+  google_drive_credentials:
+    file: ${GOOGLE_DRIVE_CREDENTIALS_FILE:?Set the host credentials file path}
