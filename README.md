@@ -31,8 +31,8 @@ The first build downloads dependencies and can take several minutes.
 - Full readiness: http://localhost:8000/health/ready
 - Frontend-to-backend connectivity: http://localhost:3000/api/health
 
-The repository includes minimal runnable apps; Smart Sync, Asset Registry,
-Command Center, and application authentication are not implemented yet.
+The repository includes runnable apps, an Assets API and optional Google Drive
+ingestion. Command Center and application authentication are not implemented yet.
 
 ## Services and configuration
 

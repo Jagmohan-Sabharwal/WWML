@@ -128,10 +128,12 @@ def test_invalid_json_is_sanitized() -> None:
         GoogleDriveClient(session_with(malformed)).get_folder("folder", 5)
 
 
+@pytest.mark.parametrize("download", [False, True])
 @pytest.mark.parametrize("fail_during_scan", [False, True])
 def test_adc_scope_and_session_cleanup(
     monkeypatch: pytest.MonkeyPatch,
     fail_during_scan: bool,
+    download: bool,
 ) -> None:
     default = MagicMock(return_value=(object(), "project"))
     session = MagicMock(spec=Session)
@@ -139,12 +141,15 @@ def test_adc_scope_and_session_cleanup(
     monkeypatch.setattr("app.api.drive.client.google.auth.default", default)
     monkeypatch.setattr("app.api.drive.client.AuthorizedSession", authorized)
     try:
-        with authenticated_client(10):
+        with authenticated_client(10, download=download):
             if fail_during_scan:
                 raise DriveReadError("scan_timeout")
     except DriveReadError:
         pass
-    default.assert_called_once_with(scopes=[DRIVE_SCOPE])
+    scope = (
+        "https://www.googleapis.com/auth/drive.readonly" if download else DRIVE_SCOPE
+    )
+    default.assert_called_once_with(scopes=[scope])
     assert authorized.call_args.kwargs["max_refresh_attempts"] == 1
     assert authorized.call_args.kwargs["refresh_timeout"] == 10
     session.close.assert_called_once()

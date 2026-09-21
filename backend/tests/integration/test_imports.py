@@ -2,6 +2,7 @@
 
 import hashlib
 import os
+from contextlib import nullcontext
 from unittest.mock import MagicMock
 from uuid import uuid4
 
@@ -211,3 +212,31 @@ def test_worker_exclusion_and_migration_roundtrip(migrated_database):
     assert "drive_imports" not in inspect(engine).get_table_names()
     assert "assets" in inspect(engine).get_table_names()
     command.upgrade(config, "head")
+
+
+def test_worker_commits_and_releases_lock(migrated_database, tmp_path, monkeypatch):
+    engine, _ = migrated_database
+    session, service, _, _ = setup_service(engine, tmp_path)
+    session.close()
+    client = service.client
+    client.session = MagicMock()
+    response = client.session.get.return_value.__enter__.return_value
+    response.status_code = 200
+    response.iter_content.return_value = [CONTENT]
+    monkeypatch.setattr(
+        "app.workers.drive_import.authenticated_client",
+        lambda *args, **kwargs: nullcontext(client),
+    )
+    settings = service.settings.model_copy(
+        update={"import_storage_path": str(tmp_path)}
+    )
+    assert run_cycle(engine, settings) == 1
+    assert run_cycle(engine, settings) == 0
+    with Session(engine) as check:
+        assert check.scalars(select(DriveImport)).one().status == "done"
+        assert check.scalar(select(func.count()).select_from(Asset)) == 1
+    with engine.connect() as connection:
+        assert connection.scalar(
+            text("SELECT pg_try_advisory_lock(:key)"), {"key": LOCK_ID}
+        )
+        connection.execute(text("SELECT pg_advisory_unlock(:key)"), {"key": LOCK_ID})
