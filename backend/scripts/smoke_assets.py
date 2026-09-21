@@ -33,7 +33,7 @@ def main() -> None:
     checksum = hashlib.sha256(uuid4().bytes).hexdigest()
     status, asset = request(
         "POST",
-        "/assets",
+        "/api/v1/assets",
         {
             "name": "CI documentary footage",
             "storage_uri": "gs://wwml-ci/footage.mp4",
@@ -44,12 +44,12 @@ def main() -> None:
         },
     )
     assert status == 201 and asset is not None, (status, asset)
-    path = f"/assets/{asset['id']}"
+    path = f"/api/v1/assets/{asset['id']}"
     try:
         assert request("GET", path)[0] == 200
         status, page = request(
             "GET",
-            "/assets?"
+            "/api/v1/assets/search?"
             + urlencode(
                 {
                     "q": "documentary",
@@ -57,6 +57,8 @@ def main() -> None:
                     "sha256": checksum,
                     "page": 1,
                     "page_size": 1,
+                    "sort_by": "name",
+                    "sort_order": "asc",
                 }
             ),
         )
@@ -68,7 +70,22 @@ def main() -> None:
     finally:
         assert request("DELETE", path)[0] == 204
     assert request("GET", path)[0] == 404
-    print("Assets CRUD, search, filters and pagination passed.")
+    status, conflict = request(
+        "POST",
+        "/api/v1/assets",
+        {
+            "name": "Duplicate deleted footage",
+            "storage_uri": "gs://wwml-ci/copy.mp4",
+            "media_type": "video",
+            "mime_type": "video/mp4",
+            "size_bytes": 0,
+            "sha256": checksum,
+        },
+    )
+    assert status == 409 and conflict is not None
+    assert conflict["detail"]["code"] == "asset_deleted"
+    assert request("GET", f"/assets/{asset['id']}")[0] == 404
+    print("PAR CRUD, soft deletion, canonical checksum and sorted search passed.")
 
 
 if __name__ == "__main__":

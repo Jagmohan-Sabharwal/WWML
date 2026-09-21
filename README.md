@@ -130,8 +130,8 @@ for configuration, the Assets schema, migrations and PostgreSQL integration test
 
 ## Assets API
 
-Use `/assets` to register and discover reusable footage. CRUD, search, filters
-and pagination are documented in [Assets API](backend/docs/assets-api.md) and
+Use `/api/v1/assets` to register and discover reusable footage. CRUD, soft deletion,
+search, sorting, filters and pagination are documented in [Assets API](backend/docs/assets-api.md) and
 Swagger at http://localhost:8000/docs. Apply migrations before using these routes.
 
 ## Google Drive sources
@@ -221,8 +221,8 @@ configuration. Exhausted jobs remain visibly failed. Inspect progress after
 Staging files left by a terminated worker are cleared by the next worker while it
 holds the exclusive lock. A crash after publication or a concurrent Asset
 registration can leave an unreferenced content file; files are intentionally not
-garbage-collected automatically. Deleting an Asset clears the progress reference
-but does not delete bytes or automatically reimport a completed source version.
+garbage-collected automatically. Soft-deleting an Asset preserves the progress reference and stored bytes. It does
+not automatically reimport a completed source version.
 Back up PostgreSQL and `asset_data` together. Never use `down --volumes` on data
 you need to retain.
 
