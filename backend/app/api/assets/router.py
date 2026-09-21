@@ -20,7 +20,7 @@ from app.api.assets.schemas import (
 from app.api.assets.service import AssetNotFoundError, AssetService, DuplicateAssetError
 from app.db.session import get_session
 
-router = APIRouter(prefix="/assets", tags=["assets"])
+router = APIRouter(tags=["assets"])
 
 
 def get_asset_service(
@@ -45,17 +45,28 @@ CONFLICT = {
     responses={409: CONFLICT},
 )
 def create_asset(
-    data: AssetCreate, response: Response, service: Service
+    data: AssetCreate, request: Request, response: Response, service: Service
 ) -> AssetResponse:
     """Register metadata, checking the checksum before creating a new record."""
     asset = service.create(data)
-    response.headers["Location"] = f"/assets/{asset.id}"
+    base_path = request.url.path.rstrip("/")
+    response.headers["Location"] = f"{base_path}/{asset.id}"
     return AssetResponse.model_validate(asset)
 
 
-@router.get("", response_model=AssetPage, summary="Search and filter reusable assets")
+@router.get("", response_model=AssetPage, summary="List active production assets")
 def list_assets(query: Annotated[AssetQuery, Query()], service: Service) -> AssetPage:
-    """Newest first, with UUID as a stable tie-breaker; filters combine with AND."""
+    """Exclude deleted assets; combine filters with AND and break sort ties by UUID."""
+    return service.list(query)
+
+
+@router.get(
+    "/search",
+    response_model=AssetPage,
+    summary="Search, filter and sort active production assets",
+)
+def search_assets(query: Annotated[AssetQuery, Query()], service: Service) -> AssetPage:
+    """Search name/description literally, with stable bounded pagination."""
     return service.list(query)
 
 
@@ -84,17 +95,19 @@ def update_asset(asset_id: UUID, data: AssetUpdate, service: Service) -> AssetRe
     "/{asset_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     responses={404: NOT_FOUND},
-    summary="Delete an asset registration",
+    summary="Soft-delete an asset registration",
 )
 def delete_asset(asset_id: UUID, service: Service) -> Response:
-    """Delete the database record only; the referenced source file remains intact."""
+    """Retain the row and source bytes; subsequent reads/updates/deletes return 404."""
     service.delete(asset_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 def register_assets_api(application: FastAPI) -> None:
     """Install this slice's routes and explicit, secret-free error contracts."""
-    application.include_router(router)
+    application.include_router(router, prefix="/api/v1/assets")
+    # Existing clients share the same lifecycle rules, including soft deletion.
+    application.include_router(router, prefix="/assets", deprecated=True)
 
     @application.exception_handler(AssetNotFoundError)
     async def not_found(request: Request, error: AssetNotFoundError) -> JSONResponse:
@@ -107,8 +120,12 @@ def register_assets_api(application: FastAPI) -> None:
     async def duplicate(request: Request, error: DuplicateAssetError) -> JSONResponse:
         body = AssetErrorResponse(
             detail=AssetErrorDetail(
-                code="duplicate_asset",
-                message="An asset with this checksum exists; reuse the existing asset.",
+                code="asset_deleted" if error.deleted else "duplicate_asset",
+                message=(
+                    "A deleted asset retains this checksum; registration is reserved."
+                    if error.deleted
+                    else "An asset with this checksum exists; reuse the existing asset."
+                ),
                 existing_asset_id=error.existing_asset_id,
             )
         )

@@ -1,45 +1,72 @@
-# Assets API
+# Production Asset Registry (WWML-005)
 
-Register and discover existing documentary source files before requesting any new
-generation. The API stores metadata; it never generates, uploads, downloads or
-deletes media.
+The PAR is the canonical SQL-backed record of documentary assets. It stores
+metadata and file locations, with one unique SHA-256 registration per set of file
+bytes. It does not upload, download, generate, score or analyze media.
 
-## Start and inspect Swagger
-
-From the repository root:
+## Run and inspect
 
 ```sh
 docker compose up --build --wait --wait-timeout 180
 docker compose exec -T backend alembic upgrade head
 ```
 
-Open http://localhost:8000/docs and expand **assets**. Request schemas, typed
-responses, query bounds, 404/409 responses and validation errors are documented
-in Swagger. The OpenAPI document is at http://localhost:8000/openapi.json.
+Swagger: http://localhost:8000/docs, **assets**.
+OpenAPI: http://localhost:8000/openapi.json.
+The platform retains its current trusted-network deployment model; this slice
+does not add authentication.
 
-## Endpoints
+## API
 
-| Method and path | Result |
+| Method | Canonical path | Result |
+| --- | --- | --- |
+| POST | /api/v1/assets | Register metadata; 201 with Location |
+| GET | /api/v1/assets | Paginated active assets |
+| GET | /api/v1/assets/search | Search, filter and sort active assets |
+| GET | /api/v1/assets/{asset_id} | Read an active UUID; 200 or 404 |
+| PATCH | /api/v1/assets/{asset_id} | Partial update; 200, 404 or 409 |
+| DELETE | /api/v1/assets/{asset_id} | Soft delete; 204 or 404 |
+
+The static `/search` route precedes the UUID route. The legacy `/assets` paths
+remain deprecated aliases to the same repository/service for existing clients.
+They also soft delete. Neither API exposes a hard-delete or restore operation.
+
+Malformed UUIDs, unknown query/body fields and invalid values return 422.
+PATCH needs at least one editable field. Omitted fields remain unchanged;
+description alone may be explicitly null. Updating asset_metadata replaces the
+entire JSON object.
+
+### Asset schema
+
+The existing SQLAlchemy `Asset` and `assets` table remain the single registry;
+no parallel asset table is introduced.
+
+| Field | Rules |
 | --- | --- |
-| POST /assets | Register an existing file; 201 and a Location header |
-| GET /assets | Search/filter a page of assets; 200 |
-| GET /assets/{asset_id} | Read one UUID; 200 or 404 |
-| PATCH /assets/{asset_id} | Update provided fields; 200, 404 or 409 |
-| DELETE /assets/{asset_id} | Delete the registration only; 204 or 404 |
+| id | Server-generated UUID primary key |
+| name | Required, nonblank, at most 255 characters |
+| description | Optional, at most 10,000 characters |
+| storage_uri | Required durable location; do not embed credentials or signed URLs |
+| media_type | video, audio, image, document or other |
+| mime_type | Valid lowercase MIME type, at most 127 characters |
+| size_bytes | Integer from 0 to PostgreSQL bigint maximum |
+| sha256 | 64 lowercase hex characters; globally unique, including deleted rows |
+| asset_metadata | JSON object, defaults to {} |
+| created_at / updated_at | Server-managed timestamps with timezone |
+| deleted_at | Nullable timestamp with timezone; null for active records |
 
-Invalid UUIDs, query values or payloads return 422. IDs and timestamps are
-server-managed and cannot be supplied in write payloads. Unknown body/query
-fields are rejected.
+IDs and lifecycle timestamps cannot be set by POST/PATCH. The service owns write
+transactions; the repository owns SQLAlchemy persistence/query construction.
+Mutating an existing asset locks its active row until commit to serialize PATCH
+and DELETE.
 
-### Register a file
-
-Compute SHA-256 from the actual file bytes first. Example request shape:
+Example registration (replace the illustrative checksum with the actual hash):
 
 ```json
 {
   "name": "Coastal interview",
   "description": "Marine biologist interview",
-  "storage_uri": "gs://wwml/footage/coastal-interview.mp4",
+  "storage_uri": "s3://wwml/footage/coastal-interview.mp4",
   "media_type": "video",
   "mime_type": "video/mp4",
   "size_bytes": 1048576,
@@ -48,97 +75,92 @@ Compute SHA-256 from the actual file bytes first. Example request shape:
 }
 ```
 
-The example hash illustrates the required format; replace it with the real
-checksum. Store durable locations without embedded credentials or expiring signed
-URLs. The response includes id, created_at and updated_at in addition to the fields
-above. Do an exact checksum lookup before registering:
+### Search, sorting and filtering
 
 ```text
-GET /assets?sha256=<64-character-lowercase-checksum>
+GET /api/v1/assets/search?q=coastal&media_type=video&sort_by=name&sort_order=asc&page=1&page_size=20
 ```
 
-A duplicate create or checksum-changing update returns 409:
-
-```json
-{
-  "detail": {
-    "code": "duplicate_asset",
-    "message": "An asset with this checksum exists; reuse the existing asset.",
-    "existing_asset_id": "existing-asset-uuid"
-  }
-}
-```
-
-Reuse the returned ID. A database uniqueness constraint protects against competing
-registrations after the initial lookup. If the winning record is deleted before
-it can be looked up, existing_asset_id can be null; repeat the checksum search.
-This checks identical bytes, not semantic equivalence.
-
-### Search, pagination and filters
-
-```text
-GET /assets?q=coastal&media_type=video&mime_type=video%2Fmp4&page=1&page_size=20
-```
+List and search accept identical query parameters:
 
 | Parameter | Behavior |
 | --- | --- |
 | q | Case-insensitive literal substring in name OR description; 1–200 trimmed characters |
 | media_type | Exact video, audio, image, document or other |
 | mime_type | Exact lowercase MIME type |
-| sha256 | Exact lowercase file checksum |
-| page | One-based, default 1; maximum 1,000,000 |
-| page_size | Default 20; minimum 1, maximum 100 |
+| sha256 | Exact lowercase SHA-256 |
+| min_size_bytes / max_size_bytes | Inclusive size bounds; minimum cannot exceed maximum |
+| created_after / created_before | Inclusive creation bounds; ISO 8601 with timezone; lower cannot exceed upper |
+| sort_by | created_at (default), updated_at, name or size_bytes |
+| sort_order | desc (default) or asc |
+| page | One-based, default 1, maximum 1,000,000 |
+| page_size | Default 20, range 1–100 |
 
-Filters combine with AND. SQL parameters are bound, and %, _ and / in search terms
-are treated as literal characters. Sort order is created_at descending, then UUID
-descending as a deterministic tie-breaker.
+All filters combine with AND. Size bounds are nonnegative PostgreSQL bigint values.
+Name sorting is case-insensitive. Every sort uses UUID in the same direction as a
+deterministic tie-breaker. Sort expressions are allowlisted, values are bound, and
+SQL wildcard characters in search text are escaped.
+
+```json
+{"items": [], "total": 0, "page": 1, "page_size": 20, "total_pages": 0}
+```
+
+Totals count matching active records before pagination. Out-of-range pages return
+empty items with the matching total preserved. Offset pages can shift during
+concurrent writes; this is not a snapshot cursor API.
+
+### Soft deletion and canonical identity
+
+DELETE sets deleted_at and updates updated_at. The row, original UUID, checksum,
+metadata, relationships and external file remain intact. Subsequent GET, PATCH,
+or DELETE for that UUID returns 404. Deleted rows are excluded from list/search,
+including their totals. There is no include_deleted query option.
+
+An active checksum conflict returns 409 with `code: duplicate_asset` and
+`existing_asset_id`. A checksum belonging to a tombstone returns 409 with
+`code: asset_deleted` and the canonical ID. This applies to both new registrations
+and checksum-changing PATCH requests. The unique constraint covers all records,
+and the service rolls back and classifies competing-registration conflicts.
+Deletion cannot silently release a checksum or create a second canonical record.
+Restoration/administrative retention policy is outside this change.
 
 ```json
 {
-  "items": [],
-  "total": 0,
-  "page": 1,
-  "page_size": 20,
-  "total_pages": 0
+  "detail": {
+    "code": "asset_deleted",
+    "message": "A deleted asset retains this checksum; registration is reserved.",
+    "existing_asset_id": "existing-asset-uuid"
+  }
 }
 ```
 
-total counts all matching records before pagination. Out-of-range pages return
-empty items with the matching total preserved. Offset pages may shift when assets
-are inserted or deleted between requests; this is not a snapshot cursor API.
+## Migration and deployment
 
-### Partial updates and deletion
+Revision `0004_asset_soft_delete` adds nullable deleted_at and a partial
+created_at/id index for active rows. Existing assets remain active and keep their
+IDs, checksums and references. Existing indexes and uniqueness constraints remain.
 
-PATCH requires at least one editable field. Omitted fields remain unchanged.
-description may explicitly be null; other fields may not. asset_metadata replaces
-the whole JSON object. For example:
+Apply `alembic upgrade head` before directing traffic to the new API version.
+Drain writes during schema/app deployment so old application instances cannot
+continue performing physical deletes. Building the index can lock writes on large
+tables; plan a maintenance window when needed.
 
-```json
-{"name": "Interview — selected take", "description": null}
-```
+`alembic downgrade 0003_drive_imports` removes the index and deleted_at without
+deleting asset rows, but loses deletion state and makes tombstones active again.
+Only use this rollback after explicitly accepting that lifecycle consequence.
+Back up the database before production migrations. Downgrading to base is
+destructive and removes the registry itself.
 
-DELETE permanently removes only the database registration, leaving the referenced
-media file intact. A subsequent lookup or repeated delete returns 404.
+## Verification
 
-## Migration
+Unit tests cover query validation, readonly lifecycle fields, SQL construction,
+soft-delete behavior, service transaction/conflict handling, and OpenAPI routes.
+PostgreSQL integration tests cover the versioned CRUD flow, retained tombstones,
+legacy alias behavior, checksum reservation, all four sorting fields in both
+directions, pagination ties, inclusive filters and migration round trips over
+populated data. Docker smoke tests use the versioned API in development and
+production images and confirm soft-deleted checksums remain reserved.
 
-Revision 0002_asset_discovery builds composite indexes for created_at/id ordering,
-media-type ordering and MIME-type ordering. It replaces the old media-type-only
-index. Exact checksum lookup uses the existing unique index. Literal substring
-search uses PostgreSQL ILIKE and is not accelerated by these B-tree indexes.
-
-Apply with alembic upgrade head. Downgrading only this revision using
-alembic downgrade 0001_create_assets restores the previous indexes and preserves
-asset rows. Building indexes can lock writes on a large existing table; schedule
-the schema deployment accordingly.
-
-## Validation
-
-Unit tests cover request validation and the Swagger contract. PostgreSQL tests
-exercise CRUD, literal search, combined filters, checksum lookup, stable pagination,
-missing IDs, duplicate conflicts, the competing-insert fallback, and the
-data-preserving migration round trip. The Docker workflow registers, reads, searches,
-updates and deletes a smoke-test record against both development and production
-images after migrations are applied.
-
-See the backend README for commands and safeguards for disposable test databases.
+See [backend development](../README.md) for test commands and the disposable
+PostgreSQL test database safeguards. No AQR, AI or Google Drive implementation is
+part of this registry change.

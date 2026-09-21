@@ -25,6 +25,12 @@ class Asset(Base):
 
     __tablename__ = "assets"
     __table_args__ = (
+        Index(
+            "ix_assets_active_created_id",
+            "created_at",
+            "id",
+            postgresql_where=text("deleted_at IS NULL"),
+        ),
         Index("ix_assets_created_id", "created_at", "id"),
         Index("ix_assets_media_created_id", "media_type", "created_at", "id"),
         Index("ix_assets_mime_created_id", "mime_type", "created_at", "id"),
@@ -49,6 +55,7 @@ class Asset(Base):
     asset_metadata: Mapped[dict[str, Any]] = mapped_column(
         JSONB, default=dict, server_default=text("'{}'::jsonb")
     )
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

@@ -5,6 +5,7 @@ from typing import Annotated, Literal, Self
 from uuid import UUID
 
 from pydantic import (
+    AwareDatetime,
     BaseModel,
     ConfigDict,
     Field,
@@ -90,12 +91,25 @@ class AssetResponse(BaseModel):
     asset_metadata: dict[str, JsonValue]
     created_at: datetime
     updated_at: datetime
+    deleted_at: datetime | None = None
 
 
 class AssetQuery(BaseModel):
     """Combine filters with AND; q matches either name or description."""
 
     model_config = ConfigDict(extra="forbid")
+    sort_by: Literal["created_at", "updated_at", "name", "size_bytes"] = Field(
+        default="created_at", description="Allowlisted sort column; UUID breaks ties."
+    )
+    sort_order: Literal["asc", "desc"] = "desc"
+    min_size_bytes: int | None = Field(default=None, ge=0, le=9223372036854775807)
+    max_size_bytes: int | None = Field(default=None, ge=0, le=9223372036854775807)
+    created_after: AwareDatetime | None = Field(
+        default=None, description="Inclusive creation lower bound, with timezone."
+    )
+    created_before: AwareDatetime | None = Field(
+        default=None, description="Inclusive creation upper bound, with timezone."
+    )
     page: int = Field(default=1, ge=1, le=1000000)
     page_size: int = Field(default=20, ge=1, le=100)
     q: (
@@ -110,6 +124,22 @@ class AssetQuery(BaseModel):
         default=None, description="Exact file lookup for reuse."
     )
 
+    @model_validator(mode="after")
+    def validate_ranges(self) -> Self:
+        if (
+            self.min_size_bytes is not None
+            and self.max_size_bytes is not None
+            and self.min_size_bytes > self.max_size_bytes
+        ):
+            raise ValueError("min_size_bytes must not exceed max_size_bytes")
+        if (
+            self.created_after is not None
+            and self.created_before is not None
+            and self.created_after > self.created_before
+        ):
+            raise ValueError("created_after must not exceed created_before")
+        return self
+
 
 class AssetPage(BaseModel):
     items: list[AssetResponse]
@@ -120,7 +150,7 @@ class AssetPage(BaseModel):
 
 
 class AssetErrorDetail(BaseModel):
-    code: Literal["asset_not_found", "duplicate_asset"]
+    code: Literal["asset_not_found", "duplicate_asset", "asset_deleted"]
     message: str
     existing_asset_id: UUID | None = None
 

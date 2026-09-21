@@ -82,4 +82,4 @@ def test_swagger_documents_crud_filters_and_errors(application: FastAPI) -> None
     assert "204" in paths["/assets/{asset_id}"]["delete"]["responses"]
     assert "422" in paths["/assets"]["get"]["responses"]
     parameters = {p["name"] for p in paths["/assets"]["get"]["parameters"]}
-    assert parameters == {"q", "page", "page_size", "media_type", "mime_type", "sha256"}
+    assert {"q", "page", "page_size", "media_type", "mime_type", "sha256"} <= parameters

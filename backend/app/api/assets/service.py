@@ -22,8 +22,11 @@ class AssetNotFoundError(Exception):
 class DuplicateAssetError(Exception):
     """Identical file bytes are already registered and should be reused."""
 
-    def __init__(self, existing_asset_id: UUID | None) -> None:
+    def __init__(
+        self, existing_asset_id: UUID | None, *, deleted: bool = False
+    ) -> None:
         self.existing_asset_id = existing_asset_id
+        self.deleted = deleted
         super().__init__("An asset with this checksum already exists; reuse it.")
 
 
@@ -33,8 +36,8 @@ class AssetService:
     def __init__(self, repository: AssetRepository) -> None:
         self.repository = repository
 
-    def get(self, asset_id: UUID) -> Asset:
-        asset = self.repository.get(asset_id)
+    def get(self, asset_id: UUID, *, for_update: bool = False) -> Asset:
+        asset = self.repository.get(asset_id, for_update=for_update)
         if asset is None:
             raise AssetNotFoundError
         return asset
@@ -52,7 +55,9 @@ class AssetService:
     def create(self, data: AssetCreate) -> Asset:
         existing = self.repository.find_by_sha256(data.sha256)
         if existing is not None:
-            raise DuplicateAssetError(existing.id)
+            raise DuplicateAssetError(
+                existing.id, deleted=existing.deleted_at is not None
+            )
         asset = Asset(**data.model_dump())
         self.repository.add(asset)
         self._commit(data.sha256)
@@ -60,11 +65,13 @@ class AssetService:
         return asset
 
     def update(self, asset_id: UUID, data: AssetUpdate) -> Asset:
-        asset = self.get(asset_id)
+        asset = self.get(asset_id, for_update=True)
         if data.sha256 is not None and data.sha256 != asset.sha256:
             existing = self.repository.find_by_sha256(data.sha256)
             if existing is not None:
-                raise DuplicateAssetError(existing.id)
+                raise DuplicateAssetError(
+                    existing.id, deleted=existing.deleted_at is not None
+                )
         for name, value in data.model_dump(exclude_unset=True).items():
             setattr(asset, name, value)
         checksum = asset.sha256
@@ -73,9 +80,10 @@ class AssetService:
         return asset
 
     def delete(self, asset_id: UUID) -> None:
-        """Delete registration metadata only; never remove the external media."""
-        self.repository.delete(self.get(asset_id))
-        self.repository.session.commit()
+        """Soft-delete the canonical record; keep all references and source bytes."""
+        asset = self.get(asset_id, for_update=True)
+        self.repository.delete(asset)
+        self._commit(asset.sha256)
 
     def _commit(self, checksum: str) -> None:
         try:
@@ -87,4 +95,7 @@ class AssetService:
                 raise
             # Handle a competing insert that won after our initial lookup.
             existing = self.repository.find_by_sha256(checksum)
-            raise DuplicateAssetError(existing.id if existing else None) from None
+            raise DuplicateAssetError(
+                existing.id if existing else None,
+                deleted=existing is not None and existing.deleted_at is not None,
+            ) from None
