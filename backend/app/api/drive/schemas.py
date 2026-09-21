@@ -19,6 +19,11 @@ class ShortcutDetails(BaseModel):
     )
 
 
+class Capabilities(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+    can_download: bool = Field(default=False, validation_alias="canDownload")
+
+
 class ProviderFile(BaseModel):
     """Parse optional Google fields without inventing sizes or checksums."""
 
@@ -40,6 +45,8 @@ class ProviderFile(BaseModel):
     shortcut_details: ShortcutDetails | None = Field(
         default=None, validation_alias="shortcutDetails"
     )
+    version: str | None = None
+    capabilities: Capabilities | None = None
     trashed: bool = False
 
 
@@ -66,6 +73,8 @@ class DriveFileMetadata(BaseModel):
     shortcut_details: ShortcutDetails | None
     path_parts: list[str]
     relative_path: str
+    version: str | None = None
+    capabilities: Capabilities | None = None
 
 
 class FolderReadQuery(BaseModel):

@@ -19,6 +19,10 @@ jobs:
         run: |
           printf '{}' > /tmp/wwml-drive-credentials.json
           GOOGLE_DRIVE_CREDENTIALS_FILE=/tmp/wwml-drive-credentials.json docker compose -f docker-compose.yml -f docker-compose.drive.yml config --quiet
+      - name: Validate optional importer configuration
+        run: |
+          GOOGLE_DRIVE_FOLDER_ID=test-folder GOOGLE_DRIVE_CREDENTIALS_FILE=/tmp/wwml-drive-credentials.json docker compose -f docker-compose.yml -f docker-compose.import.yml config --quiet
+          GOOGLE_DRIVE_FOLDER_ID=test-folder GOOGLE_DRIVE_CREDENTIALS_FILE=/tmp/wwml-drive-credentials.json docker compose -f docker-compose.yml -f docker-compose.production.yml -f docker-compose.import.yml config --quiet
       - name: Build and start development services
         run: docker compose up --build --wait --wait-timeout 180
       - name: Apply migrations in development image
@@ -30,6 +34,11 @@ jobs:
           curl --fail http://localhost:8000/health/ready | python3 -c 'import json,sys; assert json.load(sys.stdin) == {"status":"ok","checks":{"postgres":True,"redis":True}}'
           curl --fail http://localhost:3000/ | grep -q WWML
           curl --fail http://localhost:3000/api/health | python3 -c 'import json,sys; assert json.load(sys.stdin)["status"] == "ok"'
+      - name: Verify importer runtime and writable storage
+        run: |
+          docker compose exec -T backend python -m app.workers.drive_import --help
+          docker compose exec -T backend python -c "from pathlib import Path; p=Path('/data/assets/smoke'); p.write_bytes(b'ok'); p.unlink()"
+          curl --fail http://localhost:8000/integrations/google-drive/imports | python3 -c 'import json,sys; assert json.load(sys.stdin)["total"] == 0'
       - name: Verify development Assets API
         run: python3 backend/scripts/smoke_assets.py
       - name: Stop development services

@@ -22,6 +22,11 @@ class Settings(BaseSettings):
     postgres_user: str = "wwml"
     postgres_password: SecretStr = SecretStr("")
     redis_url: SecretStr = SecretStr("redis://redis:6379/0")
+    import_storage_path: str = "/data/assets"
+    import_poll_seconds: int = Field(default=60, ge=10, le=86400)
+    import_max_bytes: int = Field(default=10737418240, ge=1)
+    import_max_attempts: int = Field(default=3, ge=1, le=100)
+    import_download_timeout_seconds: int = Field(default=1800, ge=1, le=86400)
     google_drive_folder_id: str = Field(
         default="", pattern=r"^[A-Za-z0-9_-]*$", max_length=256
     )
