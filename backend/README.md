@@ -194,3 +194,7 @@ recursive metadata discovery, read-only ADC setup and tests.
 ## Synchronization history schema
 
 See [sync jobs](docs/sync-jobs.md) for the run-level model, lifecycle, counters and migration. This schema change does not start or modify the watcher.
+
+## Asset import provenance
+
+See [asset imports](docs/asset-imports.md) for source-to-Asset relationships, sync-job links, checksum history and migration details.
