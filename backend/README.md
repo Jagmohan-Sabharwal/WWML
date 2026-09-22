@@ -202,3 +202,5 @@ See [asset imports](docs/asset-imports.md) for source-to-Asset relationships, sy
 See [Workspace read APIs](docs/workspace-api.md) for dashboard, productions, sync jobs and statistics.
 
 See [Production planning](docs/production-planning.md) for sequences, scenes, shots, required assets and explicit registry asset locks.
+
+See [Editor review](docs/editor-review.md) for production-scoped scene/shot selection readiness.

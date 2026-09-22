@@ -34,7 +34,8 @@ The first build downloads dependencies and can take several minutes.
 The repository includes runnable apps, an Assets API and optional Google Drive
 ingestion. The frontend includes Dashboard, Assets, Productions and Settings pages.
 Production planning APIs support sequences, scenes, shots and explicit asset selections.
-The Productions frontend remains a placeholder; application authentication is not implemented.
+The Productions frontend provides an editor review of scenes, shots and selected assets.
+Application authentication is not implemented.
 
 ## Services and configuration
 

@@ -32,7 +32,8 @@ Never place credentials in the backend URL.
 | `/` | Redirects to Dashboard |
 | `/dashboard` | Live registered asset count and five recently added assets |
 | `/assets` | Read-only library with name/description search, media filtering and pagination |
-| `/productions` | Honest starting page for future production planning; links to the library |
+| `/productions` | Paginated production list with links to the editor |
+| `/productions/[id]/editor` | Scene/shot requirements and derived asset selection readiness |
 | `/settings` | Browser-local light/dark preference and live backend/database/cache readiness |
 | `/api/health` | Existing server-side readiness proxy used by Docker |
 
@@ -41,7 +42,7 @@ start on page one. Lists show 12 assets per page. Unknown media types and invali
 page values are normalized, and search text is bounded to the backend's limit.
 
 The UI displays empty and unavailable states instead of fabricated records or
-counts. Productions does not create or persist projects yet. Asset mutation and
+counts. Productions reads persisted plans; creation and locking use backend APIs. Asset mutation and
 upload controls are outside this bootstrap. Appearance saves automatically in
 localStorage and remains usable when browser storage is blocked.
 
@@ -84,3 +85,5 @@ The Frontend quality workflow runs these checks on pull requests. The existing
 Docker workflow continues to build and exercise both development and production
 images. The frontend production image still uses Next.js standalone output and a
 non-root user.
+
+See [Editor review](../backend/docs/editor-review.md) for readiness rules and optional display references.
