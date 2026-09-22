@@ -6,6 +6,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
+from app.api.editor.dashboard import ProductionDashboard, production_dashboard
 from app.api.editor.repository import EditorRepository
 from app.api.editor.schemas import EditorPage
 from app.api.editor.service import EditorService
@@ -34,3 +35,15 @@ def review(
 ) -> EditorPage:
     """Review requirement rows and unplanned shots; no file bytes are verified."""
     return service.review(production_id, query)
+
+
+@router.get(
+    "/{production_id}/dashboard",
+    response_model=ProductionDashboard,
+    responses={404: {"model": PlanningErrorResponse}},
+)
+def dashboard(
+    production_id: UUID, session: Annotated[Session, Depends(get_session)]
+) -> ProductionDashboard:
+    """Production asset readiness with shared-library import history."""
+    return production_dashboard(session, production_id)

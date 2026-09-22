@@ -43,7 +43,12 @@ export default async function Productions({
                         {item.status.replaceAll("_", " ")}
                       </p>
                       <h2 className="mt-2 break-words text-xl font-semibold">
-                        {item.name}
+                        <Link
+                          href={"/productions/" + item.id + "/dashboard"}
+                          className="underline underline-offset-4"
+                        >
+                          {item.name}
+                        </Link>
                       </h2>
                       {item.description && (
                         <p className="mt-2 break-words text-sm text-muted">

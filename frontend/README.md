@@ -87,3 +87,5 @@ images. The frontend production image still uses Next.js standalone output and a
 non-root user.
 
 See [Editor review](../backend/docs/editor-review.md) for readiness rules and optional display references.
+
+Production titles link to `/productions/[id]/dashboard`: progress, assets ready/missing, AI gaps, sync status, import queue, latest imports and credits saved. Unknown AI/cost metrics are explicitly not tracked. See [metric definitions](../backend/docs/production-dashboard.md).

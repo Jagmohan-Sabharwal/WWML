@@ -204,3 +204,5 @@ See [Workspace read APIs](docs/workspace-api.md) for dashboard, productions, syn
 See [Production planning](docs/production-planning.md) for sequences, scenes, shots, required assets and explicit registry asset locks.
 
 See [Editor review](docs/editor-review.md) for production-scoped scene/shot selection readiness.
+
+See [Production dashboard](docs/production-dashboard.md) for readiness metrics and shared-library import activity.
