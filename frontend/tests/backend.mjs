@@ -43,6 +43,45 @@ const server = createServer((request, response) => {
     pageOf([production]);
     return;
   }
+  if (url.pathname.endsWith("/dashboard")) {
+    if (url.pathname.includes(id(3))) {
+      response.writeHead(503).end("{}");
+      return;
+    }
+    if (url.pathname.includes(id(4))) {
+      response.end('{"assets_ready": "invalid"}');
+      return;
+    }
+    const empty = url.pathname.includes(id(2));
+    response.end(
+      JSON.stringify({
+        production: { ...production, name: "Video #6" },
+        progress_percent: empty ? null : 25,
+        assets_ready: empty ? 0 : 1,
+        missing_assets: empty ? 0 : 1,
+        assets_to_review: empty ? 0 : 1,
+        unplanned_shots: empty ? 0 : 1,
+        required_assets: empty ? 0 : 3,
+        ai_gaps: null,
+        credits_saved: null,
+        activity_scope: "shared_library",
+        latest_sync_job: empty ? null : { status: "running" },
+        import_queue: empty ? 0 : 2,
+        failed_imports: 0,
+        latest_imports: empty
+          ? []
+          : [
+              {
+                id: id(900),
+                source_name: "Latest.mov",
+                status: "done",
+                updated_at: "2026-01-15T12:00:00Z",
+              },
+            ],
+      }),
+    );
+    return;
+  }
   if (url.pathname.endsWith("/editor")) {
     if (url.pathname.includes(id(2))) {
       pageOf([], { production: { ...production, id: id(2) } });

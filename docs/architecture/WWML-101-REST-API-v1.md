@@ -173,3 +173,7 @@ and run API tests. Versioned filenames alone do not guarantee API compatibility.
 ## Editor review extension
 
 The editor feature adds GET `/api/v1/productions/{production_id}/editor` (200 EditorPage, 404 for a missing production). It returns paginated requirement rows with scene/shot context and READY/MISSING/REVIEW/UNPLANNED states. See [editor contract](../../backend/docs/editor-review.md). This extends the baseline inventory above without changing its historical commit reference.
+
+## Production dashboard extension
+
+GET `/api/v1/productions/{production_id}/dashboard` adds the ProductionDashboard response (200; 404 for unknown production). Production-specific asset readiness is separate from shared-library sync/import activity. AI gaps and credits saved remain nullable, not inferred. See [dashboard contract](../../backend/docs/production-dashboard.md).

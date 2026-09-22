@@ -134,3 +134,7 @@ explicitly rather than describing proposed behavior as shipped.
 ## ADR-011 — Derived editor readiness
 
 **Implemented by the editor extension after the baseline above.** A read-only workspace presents each shot requirement with its locked registry selection. READY requires an active matching-media asset whose checksum and URI match the snapshot; missing or changed selections need attention. Unplanned shots remain visible. This is selection readiness, not proof of physical bytes or editorial approval. Optional catalog labels are metadata, not canonical IDs. See [editor review](../../backend/docs/editor-review.md).
+
+## ADR-012 — Measured production metrics and explicit unknowns
+
+**Implemented by the production dashboard extension.** Derive asset-planning progress from the full production plan. Count requirements rather than unique files and include unplanned shots in the denominator. Label sync/import data as shared-library scope because those tables lack production attribution. Do not turn missing locks into AI generation decisions or reuse counts into credit savings: both metrics remain null until backed by records. See [dashboard definitions](../../backend/docs/production-dashboard.md).
