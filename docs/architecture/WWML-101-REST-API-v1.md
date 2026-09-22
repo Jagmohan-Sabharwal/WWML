@@ -169,3 +169,7 @@ Generated from the baseline application OpenAPI schema, excluding framework docs
 
 Update this contract with route changes, compare it with create_app().openapi(),
 and run API tests. Versioned filenames alone do not guarantee API compatibility.
+
+## Editor review extension
+
+The editor feature adds GET `/api/v1/productions/{production_id}/editor` (200 EditorPage, 404 for a missing production). It returns paginated requirement rows with scene/shot context and READY/MISSING/REVIEW/UNPLANNED states. See [editor contract](../../backend/docs/editor-review.md). This extends the baseline inventory above without changing its historical commit reference.

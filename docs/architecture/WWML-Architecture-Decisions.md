@@ -130,3 +130,7 @@ registry/planning scope. These documents do not authorize or claim those feature
 Record status, rationale, consequences and source evidence for material changes.
 Update the related contract/ERD and link the implementing PR. Supersede decisions
 explicitly rather than describing proposed behavior as shipped.
+
+## ADR-011 — Derived editor readiness
+
+**Implemented by the editor extension after the baseline above.** A read-only workspace presents each shot requirement with its locked registry selection. READY requires an active matching-media asset whose checksum and URI match the snapshot; missing or changed selections need attention. Unplanned shots remain visible. This is selection readiness, not proof of physical bytes or editorial approval. Optional catalog labels are metadata, not canonical IDs. See [editor review](../../backend/docs/editor-review.md).

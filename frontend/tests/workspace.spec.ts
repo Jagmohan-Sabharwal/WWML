@@ -92,7 +92,7 @@ test("appearance persists and platform reports real readiness", async ({
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
 });
 
-test("productions has an honest starting state and pages fit viewport", async ({
+test("productions lists real records and pages fit viewport", async ({
   page,
 }) => {
   for (const path of ["/dashboard", "/assets", "/productions", "/settings"]) {
@@ -104,11 +104,9 @@ test("productions has an honest starting state and pages fit viewport", async ({
     ).toBe(true);
   }
   await page.goto("/productions");
-  await expect(
-    page.getByText(/Production planning is coming next/),
-  ).toBeVisible();
-  await page.getByRole("link", { name: "Explore your library" }).click();
-  await expect(page).toHaveURL(/\/assets$/);
+  await expect(page.getByRole("heading", { name: "Video6" })).toBeVisible();
+  await page.getByRole("link", { name: "Open editor" }).click();
+  await expect(page).toHaveURL(/\/editor$/);
 });
 
 test("not found pages provide a way back", async ({ page }) => {

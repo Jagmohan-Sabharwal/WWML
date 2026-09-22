@@ -100,3 +100,7 @@ when consuming media. The lock API does not enforce physical storage retention.
 
 The [Video6 register](WWML-104-Video6-Asset-Register-v1.md) is an unpopulated
 template for this process, not an inventory of existing media.
+
+## Editor display label extension
+
+The editor now consumes optional `asset_metadata.asset_code` matching `WWML-(VID|AUD|IMG|DOC|OTH)-` plus six digits, falling back to the registry name. It is a manual, non-unique label; UUID remains canonical. This does not implement the proposed technical/editorial/rights namespaces. See [editor review](../../backend/docs/editor-review.md).
