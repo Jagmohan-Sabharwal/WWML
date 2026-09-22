@@ -190,3 +190,7 @@ Swagger examples, conflict handling and the discovery-index migration.
 
 See [Google Drive reader](docs/google-drive.md) for configured-folder reads,
 recursive metadata discovery, read-only ADC setup and tests.
+
+## Synchronization history schema
+
+See [sync jobs](docs/sync-jobs.md) for the run-level model, lifecycle, counters and migration. This schema change does not start or modify the watcher.
