@@ -2,5 +2,6 @@
 
 from app.models.asset import Asset
 from app.models.drive_import import DriveImport
+from app.models.sync_job import SyncJob
 
-__all__ = ["Asset", "DriveImport"]
+__all__ = ["Asset", "DriveImport", "SyncJob"]
