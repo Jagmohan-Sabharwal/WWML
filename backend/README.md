@@ -198,3 +198,5 @@ See [sync jobs](docs/sync-jobs.md) for the run-level model, lifecycle, counters 
 ## Asset import provenance
 
 See [asset imports](docs/asset-imports.md) for source-to-Asset relationships, sync-job links, checksum history and migration details.
+
+See [Workspace read APIs](docs/workspace-api.md) for dashboard, productions, sync jobs and statistics.

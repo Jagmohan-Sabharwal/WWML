@@ -10,6 +10,7 @@ from app.api.assets.router import register_assets_api
 from app.api.drive.router import register_drive_api
 from app.api.health.router import router as health_router
 from app.api.imports.router import router as imports_router
+from app.api.workspace.router import router as workspace_router
 from app.core.config import Settings
 from app.core.logging import configure_logging
 from app.db.session import create_database_engine, create_session_factory
@@ -37,6 +38,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.state.settings = config
     application.include_router(health_router)
     application.include_router(imports_router)
+    application.include_router(workspace_router)
     register_assets_api(application)
     register_drive_api(application)
     return application
