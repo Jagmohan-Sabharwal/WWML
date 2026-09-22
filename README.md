@@ -33,7 +33,8 @@ The first build downloads dependencies and can take several minutes.
 
 The repository includes runnable apps, an Assets API and optional Google Drive
 ingestion. The frontend includes Dashboard, Assets, Productions and Settings pages.
-Production planning and application authentication are not implemented yet.
+Production planning APIs support sequences, scenes, shots and explicit asset selections.
+The Productions frontend remains a placeholder; application authentication is not implemented.
 
 ## Services and configuration
 
@@ -238,3 +239,11 @@ live Drive access requires your configured credentials.
 Open http://localhost:3000 for Dashboard, Assets, Productions and Settings.
 See [frontend documentation](frontend/README.md) for local setup, Tailwind styling,
 TypeScript conventions, runtime configuration and browser tests.
+
+## Architecture documentation
+
+- [REST API v1](docs/architecture/WWML-101-REST-API-v1.md)
+- [Database ERD v1](docs/architecture/WWML-102-Database-ERD-v1.md)
+- [Asset Metadata v1](docs/architecture/WWML-103-Asset-Metadata-v1.md)
+- [Video6 Asset Register template](docs/architecture/WWML-104-Video6-Asset-Register-v1.md)
+- [Architecture Decisions](docs/architecture/WWML-Architecture-Decisions.md)
