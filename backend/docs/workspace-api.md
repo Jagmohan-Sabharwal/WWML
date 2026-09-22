@@ -25,8 +25,8 @@ UUID `id`, required nonblank `name` (255 characters), nullable `description`,
 `status` (draft, in_production, completed, archived), and timezone-aware
 `created_at`/`updated_at`. Status defaults to draft; database timestamps default
 to the current time. SQLAlchemy updates updated_at on ORM updates.
-This release provides the read API and migration, without production write endpoints
-or sample records. Production creation workflows are a separate feature.
+Create productions and their sequence/scene/shot hierarchy through the
+[production planning API](production-planning.md). No sample records are seeded.
 
 Sync jobs sort by `started_at DESC NULLS LAST, id DESC`: pending jobs appear last.
 Statuses are pending, running, completed, completed_with_errors, failed.
