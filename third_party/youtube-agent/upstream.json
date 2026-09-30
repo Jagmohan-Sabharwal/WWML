@@ -1,0 +1,95 @@
+{
+  "repository": "https://github.com/Jakeschincariol/chatgpt-youtube-agent-skill",
+  "revision": "6314d3c17dfa1e596096654204e8a09e28cdfd74",
+  "license": "MIT",
+  "files": [
+    {
+      "path": ".gitignore",
+      "sha": "b908d4cbe37ccea3388a2f308595ae63a255755d"
+    },
+    {
+      "path": "LICENSE",
+      "sha": "ac31f09aba721de8d139c7bef3d5024421426472"
+    },
+    {
+      "path": "README.md",
+      "sha": "dc0e13d6a7ae19113d5c9b2be74c9a782782268d"
+    },
+    {
+      "path": "skills/yt-audit/SKILL.md",
+      "sha": "ca68617c283dc57707ce69dcd6a544f0ba2b040f"
+    },
+    {
+      "path": "skills/yt-chapters/SKILL.md",
+      "sha": "d27cbeb65cb475381caa5754bbaa52554d56ee22"
+    },
+    {
+      "path": "skills/yt-chapters/chapters.py",
+      "sha": "2a86ec660720c238a9d72a11b2801c5585fe3dc0"
+    },
+    {
+      "path": "skills/yt-comment/SKILL.md",
+      "sha": "4c3dca2df9493c05474d1d0ef6154790cbdc59ed"
+    },
+    {
+      "path": "skills/yt-edit/SKILL.md",
+      "sha": "31da6f9d59f1aa354af4a0a9c21b108d76fd2e5c"
+    },
+    {
+      "path": "skills/yt-edit/deadair.py",
+      "sha": "dde0c9886aa412d7368fd3c964d883699c2d142a"
+    },
+    {
+      "path": "skills/yt-package/SKILL.md",
+      "sha": "4527bd5efd487495a814d8b3d5a69241b2015399"
+    },
+    {
+      "path": "skills/yt-package/title.py",
+      "sha": "7cbb8169f0f8f171bfe2bd0743c868ce341fea37"
+    },
+    {
+      "path": "skills/yt-plan/SKILL.md",
+      "sha": "e4402b6970232af8b3aa9b28edd223ac605fa006"
+    },
+    {
+      "path": "skills/yt-retention/SKILL.md",
+      "sha": "e1a51f495acebd82e73a9078ee8ec6cfa485da12"
+    },
+    {
+      "path": "skills/yt-retention/retention.py",
+      "sha": "a7df80972b3a90e638dead0df7288aa777778226"
+    },
+    {
+      "path": "skills/yt-script/SKILL.md",
+      "sha": "9b26481700576562bf9de25652773ba74760ae22"
+    },
+    {
+      "path": "skills/yt-script/hooks.json",
+      "sha": "b69eab6dcd6638ae0f4ec28140097f774cc79242"
+    },
+    {
+      "path": "skills/yt-script/hookscore.py",
+      "sha": "2f65da556410e4e4418442f5eec41921fe7f53a2"
+    },
+    {
+      "path": "skills/yt-seo/SKILL.md",
+      "sha": "ef102934f737108a6cf3e2c6e3267b0a5affb3f9"
+    },
+    {
+      "path": "skills/yt-shorts/SKILL.md",
+      "sha": "accbc27c38ba3c47a9a80a793aa7d0de080cb55a"
+    },
+    {
+      "path": "skills/yt-viral/SKILL.md",
+      "sha": "b4bbd0d8e185bc1af09778f0eb2ce0985ade96c3"
+    },
+    {
+      "path": "skills/yt-viral/swipe.py",
+      "sha": "f84b72e742ab846270d79a79931dd25a86f4a62a"
+    },
+    {
+      "path": "templates/voice.md",
+      "sha": "0eea162de1feb1659571d8c988322341967b50b5"
+    }
+  ]
+}
