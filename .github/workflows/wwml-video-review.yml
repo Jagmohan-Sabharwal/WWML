@@ -1,0 +1,41 @@
+
+name: WWML 7 Habits 2027 render
+on:
+  push:
+    branches: [production/7-habits-2027]
+    paths:
+      - productions/WW_2027_7HABITS/**
+      - wwml_youtube/render_review.py
+      - .github/workflows/wwml-video-review.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install renderer dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
+          python -m pip install Pillow piper-tts
+      - name: Download licensed temporary narrator
+        run: python -m piper.download_voices en_US-libritts_r-medium
+      - name: Check Python source
+        run: python -m compileall -q wwml_youtube
+      - name: Run editorial integration tests
+        run: python -m unittest discover -s tests -v
+      - name: Render and verify the video
+        run: python -m wwml_youtube.render_review productions/WW_2027_7HABITS/project.json --model en_US-libritts_r-medium.onnx --out output/WW_2027_7HABITS
+      - name: Upload video and publishing package
+        uses: actions/upload-artifact@v4
+        with:
+          name: WWML-7-Habits-2027-Review-Cut
+          path: output/WW_2027_7HABITS/
+          retention-days: 90
+          if-no-files-found: error

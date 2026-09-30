@@ -1,0 +1,208 @@
+{
+  "project_id": "WW_2027_7HABITS",
+  "title": "7 Habits That Could Make You Richer AND Healthier in 2027",
+  "format": {
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "orientation": "16:9"
+  },
+  "voice": {
+    "requested": "Arthur",
+    "review_cut": "Piper LibriTTS-R medium, speaker 0",
+    "reason": "Higgsfield tools returned internal errors; Arthur unavailable",
+    "final_status": "pending"
+  },
+  "sections": [
+    {
+      "label": "THE DOUBLE RETURN",
+      "heading": "Build a better 2027",
+      "big": "7",
+      "unit": "habits • two goals",
+      "action": "More financial breathing room. Better daily health.",
+      "source": "Practical habits, not promises",
+      "sentences": [
+        "What if the habits protecting your health could also protect your money?",
+        "These seven habits could help you build a stronger financial life and a healthier twenty twenty seven.",
+        "They will not guarantee wealth, and they are not a medical treatment plan.",
+        "But they give your daily decisions a direction.",
+        "And the final habit helps you keep the other six from disappearing after January."
+      ]
+    },
+    {
+      "label": "01 / SLEEP",
+      "heading": "Protect your sleep",
+      "big": "7+",
+      "unit": "hours • ages 18–60",
+      "action": "Set a consistent bedtime and wake time.",
+      "source": "Source: CDC • About Sleep",
+      "sentences": [
+        "Habit one: protect your sleep.",
+        "The C D C recommends seven or more hours for adults aged eighteen to sixty; recommendations differ for older adults.",
+        "A consistent bedtime and wake time can help.",
+        "Adequate sleep supports attention and memory, which matter when you work, learn, and make decisions.",
+        "The money connection is practical: give yourself a clearer head before a major purchase or financial commitment.",
+        "Start with a realistic bedtime, and keep late night shopping out of that routine."
+      ]
+    },
+    {
+      "label": "02 / MOVEMENT",
+      "heading": "Move before you spend",
+      "big": "10",
+      "unit": "minutes • start small",
+      "action": "Walk a short trip when safe and practical.",
+      "source": "Source: WHO • Physical activity",
+      "sentences": [
+        "Habit two: move before you spend.",
+        "When safe and practical, walk a short trip instead of paying for transport.",
+        "Physical activity benefits physical and mental health, and even a small amount counts.",
+        "A ten minute walk is a starting point, not the full weekly target.",
+        "The World Health Organization recommends at least one hundred and fifty minutes of moderate activity a week for adults.",
+        "Build gradually at a level that suits your health and abilities."
+      ]
+    },
+    {
+      "label": "03 / FOOD",
+      "heading": "Plan a few meals",
+      "big": "$1,248",
+      "unit": "CAD • illustrative annual saving",
+      "action": "$8 saved × 3 lunches × 52 weeks",
+      "source": "Example only • Actual costs vary",
+      "sentences": [
+        "Habit three: plan a few meals before the week begins.",
+        "Choose simple meals that fit your health needs, preferences, and budget.",
+        "Shop from a list and use what you already have.",
+        "Here is an example, not a prediction.",
+        "If bringing lunch saves eight Canadian dollars, three times a week, that is twelve hundred and forty eight dollars over fifty two weeks.",
+        "Your actual savings depend on ingredients, local prices, and how consistently you do it.",
+        "Planning also lets you choose what goes into your food."
+      ]
+    },
+    {
+      "label": "04 / SAVINGS",
+      "heading": "Automate a small buffer",
+      "big": "$1,040",
+      "unit": "CAD • before interest or tax",
+      "action": "$20 saved × 52 weeks",
+      "source": "Source: Financial Consumer Agency of Canada",
+      "sentences": [
+        "Habit four: automate a small financial buffer.",
+        "After essential bills, choose an amount you can sustain and transfer it to accessible savings on payday.",
+        "Twenty dollars a week adds up to one thousand and forty dollars over a year, before interest or tax.",
+        "An emergency fund can help you handle unexpected costs without relying on expensive borrowing.",
+        "It may also give you peace of mind.",
+        "Start small; review the amount when your income or expenses change."
+      ]
+    },
+    {
+      "label": "05 / ATTENTION",
+      "heading": "Pause impulse purchases",
+      "big": "24",
+      "unit": "hours • a suggested pause",
+      "action": "Turn off shopping alerts. Protect bedtime.",
+      "source": "Practical strategy • Not a measured saving",
+      "sentences": [
+        "Habit five: pause impulse purchases.",
+        "Turn off shopping notifications, and try waiting twenty four hours before a nonessential purchase.",
+        "That pause is a practical strategy, not a scientifically proven savings rate.",
+        "Ask yourself whether you still want the item when the excitement has passed.",
+        "Then put the phone away before bed.",
+        "The C D C suggests turning electronic devices off at least thirty minutes before bedtime.",
+        "One routine can protect both your spending decisions and your wind down time."
+      ]
+    },
+    {
+      "label": "06 / LEARNING",
+      "heading": "Practice one useful skill",
+      "big": "20",
+      "unit": "minutes • a suggested practice block",
+      "action": "Choose a skill you can use, not just watch.",
+      "source": "Practical strategy • No income guarantee",
+      "sentences": [
+        "Habit six: practice one useful skill.",
+        "Choose a skill relevant to your work, such as communication, spreadsheets, or responsible use of A I tools.",
+        "Set aside twenty minutes to practice, rather than only watching tutorials.",
+        "Take movement breaks and protect your sleep as you learn.",
+        "Improving a skill may create opportunities, but it does not guarantee a raise or a new job.",
+        "Measure what you can now do, not how many courses you have collected."
+      ]
+    },
+    {
+      "label": "07 / REVIEW",
+      "heading": "Review money and energy",
+      "big": "15",
+      "unit": "minutes • each week",
+      "action": "Check spending, sleep, movement and next week.",
+      "source": "Practical strategy • Adjust to your situation",
+      "sentences": [
+        "Habit seven: review your money and your energy together.",
+        "Spend fifteen minutes each week checking what you spent, what you saved, and how your sleep and movement felt.",
+        "Notice the situations that made a good choice easier, or a costly choice more likely.",
+        "Adjust one thing for the next week.",
+        "The goal is a routine you can repeat, not a perfect score.",
+        "If something is not working, make the next step smaller."
+      ]
+    },
+    {
+      "label": "YOUR NEXT STEP",
+      "heading": "Start with one habit",
+      "big": "1",
+      "unit": "small action • this week",
+      "action": "Choose it. Schedule it. Review it.",
+      "source": "Wealthy Wellness • Educational content",
+      "sentences": [
+        "You do not need to change everything on January first.",
+        "Choose one habit, attach it to a routine you already have, and review it next week.",
+        "Over time, these choices could improve your financial resilience and support your health.",
+        "Your circumstances matter, and results vary.",
+        "For more practical ideas at the intersection of money and well being, subscribe and click the bell icon."
+      ]
+    }
+  ],
+  "hooks": [
+    "Before you spend another $20, which of these 7 habits could protect your health and your money in 2027?",
+    "Why could your 2027 money plan fail if you keep ignoring your daily health habits?",
+    "Before you buy another productivity course, which of these 7 daily habits are you missing?",
+    "Could your next 20 minutes help you build a healthier routine and better money decisions?",
+    "What could you change this week to protect both your energy and your savings in 2027?"
+  ],
+  "title_candidates": [
+    "7 Habits That Could Make You Richer AND Healthier in 2027",
+    "7 Habits for a Wealthier, Healthier 2027",
+    "7 Habits to Improve Your Money and Health in 2027",
+    "Build a Better 2027 With These 7 Habits",
+    "7 Daily Habits That Support Wealth and Health",
+    "Your 2027 Reset: 7 Habits for Money and Health",
+    "7 Small Habits for Better Health and Savings",
+    "Want a Better 2027? Start With These 7 Habits",
+    "7 Ways to Protect Your Money and Your Health",
+    "The 7-Habit Plan for a Better 2027"
+  ],
+  "thumbnail_text": "DOUBLE RETURN",
+  "sources": [
+    {
+      "url": "https://www.cdc.gov/sleep/about/index.html",
+      "used_for": "Sleep age ranges, attention/memory, device wind-down advice",
+      "checked": "2026-09-30"
+    },
+    {
+      "url": "https://www.who.int/news-room/fact-sheets/detail/physical-activity",
+      "used_for": "Physical and mental health benefits; any activity counts; 150 minute minimum",
+      "checked": "2026-09-30"
+    },
+    {
+      "url": "https://www.canada.ca/en/financial-consumer-agency/services/savings-investments/setting-up-emergency-funds.html",
+      "used_for": "Accessible emergency savings, automated transfers, 20 dollars per week calculation",
+      "checked": "2026-09-30"
+    }
+  ],
+  "notes": [
+    "No claim that an individual habit guarantees wealth or health outcomes.",
+    "No invented 2027 economic forecast.",
+    "Meal savings are illustrative CAD arithmetic; not a typical result.",
+    "24-hour purchase pause, 20-minute practice and 15-minute review are editorial suggestions.",
+    "No AI generation credits used.",
+    "No cinematic assets or Canva thumbnail claimed.",
+    "Publishing is not authorized by this video creation request."
+  ]
+}
